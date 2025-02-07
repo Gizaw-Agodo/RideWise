@@ -7,6 +7,8 @@ const AuthLayout = () => {
   const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
+    console.log('true');
+    
     return <Redirect href={"/(root)/(tabs)/home"} />;
   }
 

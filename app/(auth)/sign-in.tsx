@@ -1,10 +1,11 @@
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { icons, images } from "@/constants";
 import InputField from "@/components/inputField";
 import CustomButton from "@/components/customButton";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import OAuth from "@/components/oAuth";
+import { useSignIn } from "@clerk/clerk-expo";
 
 const SignIn = () => {
   const [form, setform] = useState({
@@ -12,7 +13,29 @@ const SignIn = () => {
     password: "",
   });
 
-  const onSignInPress = () => {};
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
+
+  const onSignInPress = React.useCallback(async () => {
+    if (!isLoaded) return;
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: form.email,
+        password: form.password,
+      });
+
+      // and redirect the user
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/");
+      } else {
+        console.error(JSON.stringify(signInAttempt, null, 2));
+        throw new Error("Error occured");
+      }
+    } catch (err: any) {
+      Alert.alert("Error", err.errors[0]?.longMessage);
+    }
+  }, [isLoaded, form.email, form.password]);
 
   return (
     <ScrollView className="flex-1 bg-white">
