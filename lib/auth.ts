@@ -1,8 +1,9 @@
 import * as SecureStore from 'expo-secure-store'
 import { TokenCache } from '@clerk/clerk-expo/dist/cache'
+import { Platform } from 'react-native'
 
 
-export const createTokenCache = (): TokenCache => {
+ const createTokenCache = (): TokenCache => {
   return {
     getToken: async (key: string) => {
       try {
@@ -24,3 +25,6 @@ export const createTokenCache = (): TokenCache => {
     },
   }
 }
+
+export const tokenCache = Platform.OS !== 'web' ? createTokenCache() : undefined
+
